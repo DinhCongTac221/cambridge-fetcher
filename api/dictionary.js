@@ -6,6 +6,7 @@
 
 import fetch from "node-fetch";
 
+
 export default async function handler(request, response) {
     const { s, gram, pron, autoplay,  } = request.query;
 
@@ -13,20 +14,62 @@ export default async function handler(request, response) {
         method: 'GET'
     });
 
-    console.log(res)
-    const html = res
+    const html = await res.text()
 
     let result = {}
 
     const gramPattern = /div class="posgram dpos-g hdib lmr-5"(?=.*?)>(.*?)<\/div>/g
-    result.gram = gramPattern.exec(html)
+    result.gram = gramPattern.exec(html)[1]
 
     const pronPattern = /span class="ipa dipa lpr-2 lpl-1"(?=.*?)>(.*?)<\/span>/g
-    result.pron = '/' + pronPattern.exec(html) + '/'
+    result.pron = '/' + pronPattern.exec(html)[1] + '/'
 
     const audioPattern = /src="(\/us\/media\/english\/us_pron\/(.*?).mp3)"/g
-    result.pron = 'https://dictionary.cambridge.org' + audioPattern.exec(html) + '/'
+    result.audio = 'https://dictionary.cambridge.org' + audioPattern.exec(html)[1]
 
-    console.log(result)
-    return response.status(200).send({ data });
+    const meanPattern = /<div class="def ddef_d db">(.*?)<\/div>/g
+    result.meanPattern = meanPattern.exec(html)[1]
+
+    const examPattern = /<div class="def-body ddef_b">(.*?)<\/div><\/div>/g
+    result.exam = examPattern.exec(html)[1]
+
+    return response.status(200).send(`
+        <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <title>${s}</title>
+                 <style>
+    a {
+      color: inherit !important;
+    }
+  </style>
+            </head>
+            <body>
+            <div style="text-align: center">
+  <strong>
+    ${result.meanPattern}
+  </strong>
+</div>
+<div style="text-align: center;color: green">
+  <strong>
+ ${result.gram}
+  </strong>
+</div>
+
+<div style="text-align: center;color: cornflowerblue">
+  <strong style="font-size: 2rem">${result.pron}</strong>
+
+</div>
+<div style="text-align: center">
+  <audio autoplay controls src="${result.audio}"/>
+</div>
+<hr/>
+<div  style="text-align: center">
+    ${result.exam}
+</div>
+</body>
+            </html>
+    
+    `);
 }
