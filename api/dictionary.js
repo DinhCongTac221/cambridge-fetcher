@@ -14,6 +14,19 @@ export default async function handler(request, response) {
     });
 
     console.log(res)
+    const html = res
 
+    let result = {}
+
+    const gramPattern = /div class="posgram dpos-g hdib lmr-5"(?=.*?)>(.*?)<\/div>/g
+    result.gram = gramPattern.exec(html)
+
+    const pronPattern = /span class="ipa dipa lpr-2 lpl-1"(?=.*?)>(.*?)<\/span>/g
+    result.pron = '/' + pronPattern.exec(html) + '/'
+
+    const audioPattern = /src="(\/us\/media\/english\/us_pron\/(.*?).mp3)"/g
+    result.pron = 'https://dictionary.cambridge.org' + audioPattern.exec(html) + '/'
+
+    console.log(result)
     return response.status(200).send({ data });
 }
