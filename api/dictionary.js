@@ -33,6 +33,9 @@ export default async function handler(request, response) {
     const examPattern = /<div class="def-body ddef_b">(.*?)<\/div><\/div>/g
     result.exam = examPattern.exec(html)[1]
 
+    const wordPattern = /<span class="hw dhw">(.*?)<\/span>/g
+    result.word = wordPattern.exec(html)[1]
+
     return response.status(200).send(`
         <!DOCTYPE html>
             <html lang="en">
@@ -46,21 +49,26 @@ export default async function handler(request, response) {
   </style>
             </head>
             <body>
+            
+            <div style="text-align: center;">
+  <strong style="font-size: 2rem;color: darkblue">${result.word}</strong>
+    -
+  <strong style="font-size: 2rem;color: cornflowerblue">${result.pron}</strong>
+</div>
+            
             <div style="text-align: center">
   <strong>
     ${result.meanPattern}
   </strong>
 </div>
+
 <div style="text-align: center;color: green">
   <strong>
  ${result.gram}
   </strong>
 </div>
 
-<div style="text-align: center;color: cornflowerblue">
-  <strong style="font-size: 2rem">${result.pron}</strong>
 
-</div>
 <div style="text-align: center">
   <audio autoplay controls src="${result.audio}"/>
 </div>
