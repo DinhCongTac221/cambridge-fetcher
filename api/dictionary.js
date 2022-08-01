@@ -4,7 +4,7 @@
  * @Last Modified by: quyln
  */
 
-const fetch = require('node-fetch')
+import fetch from "node-fetch";
 
 export default async function handler(request, response) {
     const { s, gram, pron, autoplay,  } = request.query;
