@@ -50,19 +50,19 @@ export default async function handler(request, response) {
             </head>
             <body>
             
-            <div style="text-align: center;">
+            <div style="text-align: center;margin-bottom: .8rem">
   <strong style="font-size: 2rem;color: darkblue">${result.word}</strong>
     -
   <strong style="font-size: 2rem;color: cornflowerblue">${result.pron}</strong>
 </div>
             
-            <div style="text-align: center">
+            <div style="text-align: center;margin-bottom: .5rem">
   <strong>
     ${result.meanPattern}
   </strong>
 </div>
 
-<div style="text-align: center;color: green">
+<div style="text-align: center;color: green;margin-bottom: .5rem">
   <strong>
  ${result.gram}
   </strong>
