@@ -6,78 +6,202 @@
 
 import fetch from "node-fetch";
 
+const buildHtml = (result) => {
+  return `
+<!DOCTYPE html>
+    <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <title>${result.s}</title>
+            <style>
+                body {
+                    font-family: ${result.style.body.fontFamily};
+                    background-color: ${result.style.body.backgroundColor};
+                }
+            
+                a {
+                  color: inherit !important;
+                  text-decoration: none;
+                }
+                
+                .dsp {
+                    position: relative;
+                    line-height: 0;
+                    vertical-align: baseline;
+                    top: -0.5em;
+                    font-size: 75%;
+                }
+                
+                .examp.dexamp {
+                    line-height: 1.5;
+                    font-style: italic;
+                }
+                
+                .dexamp::before {
+                    content: "•";
+                    display: inline-block;
+                }
+                
+                #pron {
+                    display: ${result.display.pron};
+                }
+                #mean {
+                    display: ${result.display.pron};
+                }
+                #gram {
+                    display: ${result.display.pron};
+                }
+                #audio {
+                    display: ${result.display.pron};
+                }
+                #example {
+                    display: ${result.display.pron};
+                }
+                
+                .dsense_h { 
+                    margin-bottom: 12px;
+                    padding-top: 10px;
+                    color: #5d2fc1;
+                    font-size: 1rem;
+                    font-weight: 700;
+                }
+                
+                .def.ddef_d.db {
+                    margin-top: 10px;
+                    font-size: 18px;
+                    line-height: 1.5;
+                    color: #1d2a57;
+                    font-weight: bold;
+                }
+                
+                .dwl {
+                    position: relative;
+                    margin-top: 2px;
+                    border-top: solid thin #fec400;
+                }
+                
+                .ddef_h {
+                    margin: 15px 0 15px;
+                }
+                
+                .examp.dexamp {
+                    margin-right: 22px;
+                    position: relative;
+                    font-size: 17px;
+                    margin-bottom: 10px;
+                    line-height: 1.4;
+                }
+                
+                .db {
+                    font-weight: bold;
+                }
+                
+                .def-info.ddef-info {
+                    font-size: .8rem;
+                }
+                
+                .dexamp::before {
+                    content: "•";
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                }
+                
+                .eg.deg {
+                    padding-left: 15px;
+                }
+                
+                .pr.phrase-block.dphrase-block, .daccord, .bb.hax {
+                    display: none;
+                }
+            </style>
+        </head>
+        <body>
+        
+            <div id="pron" style="text-align: center;margin-bottom: .8rem">
+              <strong class="cword" style="font-size: 2rem;color: darkblue">${result.word}</strong>
+                <strong style="font-size: 1rem">•</strong>
+              <strong class="cpron" style="font-size: 2rem;color: cornflowerblue">${result.pron}</strong>
+            </div>
+            
+            <div id="audio" style="text-align: center">
+              <audio autoplay controls src="${result.audio}" controlsList="play nodownload notimeline noremoteplayback noplaybackrate novolume"/>
+            </div>
+            <hr/>
+            <div id="example">
+                ${result.examples}
+            </div>
+        </body>
+</html>
+`;
+};
 
 export default async function handler(request, response) {
-    const { s, gram, pron, autoplay,  } = request.query;
+  const { s, gram, pron, examples, mean, audio,
+    styleFontFamily,
+    styleBodyBackgroundColor,
+      styleTextWordColor,
+      styleTextPronColor,
+      styleTextMeanColor,
+      styleTextGramColor,
+      styleTextExampleColor,
+  } = request.query;
 
-    const res = await fetch(`https://dictionary.cambridge.org/us/dictionary/english/${s}`, {
-        method: 'GET'
-    });
-
-    const html = await res.text()
-
-    let result = {}
-
-    const gramPattern = /div class="posgram dpos-g hdib lmr-5"(?=.*?)>(.*?)<\/div>/g
-    result.gram = gramPattern.exec(html)[1]
-
-    const pronPattern = /span class="ipa dipa lpr-2 lpl-1"(?=.*?)>(.*?)<\/span>/g
-    result.pron = '/' + pronPattern.exec(html)[1] + '/'
-
-    const audioPattern = /src="(\/us\/media\/english\/us_pron\/(.*?).mp3)"/g
-    result.audio = 'https://dictionary.cambridge.org' + audioPattern.exec(html)[1]
-
-    const meanPattern = /<div class="def ddef_d db">(.*?)<\/div>/g
-    result.meanPattern = meanPattern.exec(html)[1]
-
-    const examPattern = /<div class="def-body ddef_b">(.*?)<\/div><\/div>/g
-    result.exam = examPattern.exec(html)[1]
-
-    const wordPattern = /<span class="hw dhw">(.*?)<\/span>/g
-    result.word = wordPattern.exec(html)[1]
-
-    return response.status(200).send(`
-        <!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <title>${s}</title>
-                 <style>
-    a {
-      color: inherit !important;
+  const res = await fetch(
+    `https://dictionary.cambridge.org/us/dictionary/english/${s}`,
+    {
+      method: "GET",
     }
-  </style>
-            </head>
-            <body>
-            
-            <div style="text-align: center;margin-bottom: .8rem">
-  <strong style="font-size: 2rem;color: darkblue">${result.word}</strong>
-    -
-  <strong style="font-size: 2rem;color: cornflowerblue">${result.pron}</strong>
-</div>
-            
-            <div style="text-align: center;margin-bottom: .5rem">
-  <strong>
-    ${result.meanPattern}
-  </strong>
-</div>
+  );
 
-<div style="text-align: center;color: green;margin-bottom: .5rem">
-  <strong>
- ${result.gram}
-  </strong>
-</div>
+  const html = await res.text();
 
+  let result = {
+      s,
+      style: {
+          body: {
+              fontFamily: styleFontFamily || 'Arial',
+              backgroundColor: styleBodyBackgroundColor || '#FFFFFF'
+          },
+          text: {
+              wordColor: styleTextWordColor || 'darkblue',
+              pronColor: styleTextPronColor || 'cornflowerblue',
+              meanColor: styleTextMeanColor || 'black',
+              gramColor: styleTextGramColor || 'green',
+              exampleColor: styleTextExampleColor || 'black',
+          }
+      },
+      display: {
+          gram: gram || 'block',
+          pron: pron || 'block',
+          examples: examples || 'block',
+          mean: mean || 'block',
+          audio: audio || 'block'
+      }
+  };
 
-<div style="text-align: center">
-  <audio autoplay controls src="${result.audio}"/>
-</div>
-<hr/>
-<div  style="text-align: center">
-    ${result.exam}
-</div>
-</body>
-            </html>
-    
-    `);
+  try {
+    const gramPattern =
+      /div class="posgram dpos-g hdib lmr-5"(?=.*?)>(.*?)<\/div>/g;
+    result.gram = gramPattern.exec(html)[1];
+
+    const pronPattern =
+      /span class="ipa dipa lpr-2 lpl-1"(?=.*?)>(.*?)<\/span>\//g;
+    result.pron = "/" + pronPattern.exec(html)[1] + "/";
+
+    const audioPattern = /src="(\/us\/media\/english\/us_pron\/(.*?).mp3)"/g;
+    result.audio =
+      "https://dictionary.cambridge.org" + audioPattern.exec(html)[1];
+
+    const examplePattern = /<div class="pos-body">(.*?)<\/div><\/div><\/div><\/div><\/div>/gs;
+      result.examples = examplePattern.exec(html)[1]
+
+    const wordPattern = /<span class="hw dhw">(.*?)<\/span>/g;
+    result.word = wordPattern.exec(html)[1];
+  } catch (e) {
+    console.log(e);
+    return response.status(200).send(html);
+  }
+
+  return response.status(200).send(buildHtml(result));
 }
