@@ -8,6 +8,12 @@ Endpoint:
 https://cambridge-fetcher.vercel.app/api/dictionary?s=<WORD>
 ```
 
+Example with "eat"
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/lnquy065/cambridge-fetcher/main/readme/pic-1.png"/>
+</p>
+
 ### Anki implement
 
 Back card template
