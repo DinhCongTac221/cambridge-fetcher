@@ -15,12 +15,19 @@ const buildHtml = (context) => {
             <title>${context.s}</title>
             <style>
                 img {
-                    width: ${context.width || '200px'};
+                    width: ${context.width || '100%'};
+                }
+                .img-container {
+                    display: grid;
+                    grid-template-columns: auto auto;
                 }
             </style>
         </head>
         <body>
-            ${context.images.join('')}
+            <div class="img-container">
+                            ${context.images.join('')}
+
+            </div>
         </body>
 </html>
 `;
