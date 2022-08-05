@@ -64,7 +64,80 @@ At this point, change the template according to the code below
 #### Front Template
 
 ```html
+<h1>{{Front}}</h1>
 
+<iframe class="cb-front cb-meaning" 
+src="https://cambridge-fetcher.vercel.app/api/meaning?s={{Front}}"
+></iframe>
+
+```
+
+#### Back Template
+
+```html
+<h1>{{Front}}</h1>
+
+<hr>
+
+<div class="cb-back cb-grid">
+
+	<div>
+<iframe class="cb-back cb-dictionary" src="https://cambridge-fetcher.vercel.app/api/dictionary?s={{Front}}">
+</iframe>
+	</div>
+<div>
+
+```
+
+#### Styling
+
+```css
+.card {
+    font-family: arial;
+    font-size: 20px;
+    text-align: center;
+    color: black;
+    background-color: white;
+}
+
+.cb-front.cb-images {
+	height: 50vh;
+	width: 50vw;
+}
+
+.cb-front.cb-meaning {
+	height: 30vh;
+	width: 50vw;
+}
+
+.cb-back.cb-grid {
+display: grid;
+grid-template-columns: auto;
+height: 80vh;
+}
+
+.cb-back.cb-dictionary {
+	width:100%;
+height: 100%;
+}
+
+@media only screen and (max-width: 600px) {
+  .cb-front.cb-images {
+	width: calc(100vw - 3rem);
+}
+
+.cb-front.cb-meaning {
+	width: calc(100vw - 3rem);
+}
+
+.cb-back.cb-grid {
+grid-template-columns: auto;
+}
+
+.cb-back.cb-dictionary {
+	height: 100vh;
+}
+}
 ```
 
 ## License
