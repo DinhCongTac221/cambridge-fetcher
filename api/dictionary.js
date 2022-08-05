@@ -128,6 +128,11 @@ const buildHtml = (result) => {
               <audio autoplay controls src="${result.audio}" controlsList="play nodownload notimeline noremoteplayback noplaybackrate novolume"/>
             </div>
             <hr/>
+            ${result.image? `
+                <div>
+                    <img style="display: block; margin: 0 auto" src="https://dictionary.cambridge.org${result.image}" alt="${result.s}"/>
+                </div>
+            `:''}
             <div id="example">
                 ${result.examples}
             </div>
@@ -210,6 +215,12 @@ export default async function handler(request, response) {
 
         const wordPattern = /<span class="hw dhw">(.*?)<\/span>/g;
         viewContext.word = wordPattern.exec(dictionaryHtml)[1];
+
+        const imagePattern = /<amp-img class="dimg_i hp" src="(.*?)"/g
+        let img =  imagePattern.exec(dictionaryHtml);
+        if (img) {
+            viewContext.image = img[1]
+        }
     } catch (e) {
         console.log(e);
         return response.status(200).send(dictionaryHtml);

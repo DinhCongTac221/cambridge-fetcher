@@ -23,7 +23,7 @@ https://cambridge-fetcher.vercel.app/api/dictionary?s=<WORD>
 
 ### Meaning
 
-Get short meaning
+Get short meaning and images (if it is)
 
 ```
 https://cambridge-fetcher.vercel.app/api/meaning?s=<WORD>
@@ -32,15 +32,6 @@ https://cambridge-fetcher.vercel.app/api/meaning?s=<WORD>
 <p align="center">
   <img src="https://raw.githubusercontent.com/lnquy065/cambridge-fetcher/main/readme/pic-meaning.png"/>
 </p>
-
-### Images
-
-Get images based on word
-
-```
-https://cambridge-fetcher.vercel.app/api/images?s=<WORD>
-```
-
 <p align="center">
   <img src="https://raw.githubusercontent.com/lnquy065/cambridge-fetcher/main/readme/pic-images.png"/>
 </p>

@@ -25,6 +25,11 @@ const buildHtml = (context) => {
         </head>
         <body>
             ${context.meaning.join('')}
+              ${context.image? `
+                <div>
+                    <img style="display: block; margin: 0 auto" src="https://dictionary.cambridge.org${context.image}" alt="${context.s}"/>
+                </div>
+            `:''}
         </body>
 </html>
 `;
@@ -65,7 +70,14 @@ export default async function handler(request, response) {
             viewContext.meaning.push(array1[0])
             if (viewContext.meaning.length >= 3) break;
         }
+
+        const imagePattern = /<amp-img class="dimg_i hp" src="(.*?)"/g
+        let img =  imagePattern.exec(meaningHtml);
+        if (img) {
+            viewContext.image = img[1]
+        }
     } catch (e) {
+        console.log(e)
         return response.status(200).send(meaningHtml);
     }
 
