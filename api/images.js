@@ -7,6 +7,10 @@
 import fetch from "node-fetch";
 
 const buildHtml = (context) => {
+    if (context.images.length === 0) {
+        return context.res
+    }
+
     return `
 <!DOCTYPE html>
     <html lang="en">
@@ -31,7 +35,6 @@ const buildHtml = (context) => {
                             ${context.images.join('')}
 
             </div>
-            ${context.res}
         </body>
 </html>
 `;
