@@ -7,7 +7,7 @@
 import fetch from "node-fetch";
 
 const buildHtml = (result) => {
-  return `
+    return `
 <!DOCTYPE html>
     <html lang="en">
         <head>
@@ -137,71 +137,83 @@ const buildHtml = (result) => {
 };
 
 export default async function handler(request, response) {
-  const { s, gram, pron, examples, mean, audio,
-    styleFontFamily,
-    styleBodyBackgroundColor,
-      styleTextWordColor,
-      styleTextPronColor,
-      styleTextMeanColor,
-      styleTextGramColor,
-      styleTextExampleColor,
-  } = request.query;
+    const {
+        s, gram, pron, examples, mean, audio,
+        styleFontFamily,
+        styleBodyBackgroundColor,
+        styleTextWordColor,
+        styleTextPronColor,
+        styleTextMeanColor,
+        styleTextGramColor,
+        styleTextExampleColor,
+        translateFrom
+    } = request.query;
 
-  const res = await fetch(
-    `https://dictionary.cambridge.org/us/dictionary/english/${s}`,
-    {
-      method: "GET",
+    const dictionaryPromise = fetch(
+        `https://dictionary.cambridge.org/us/dictionary/english/${s}`,
+        {
+            method: "GET",
+        }
+    );
+
+    const translatePromise = fetch(
+        `https://yandex.com/images/search?text=${s}`,
+        {
+            method: "GET"
+        }
+    )
+
+    const [dictionaryRes, translateRes] = await Promise.all([dictionaryPromise, translatePromise])
+
+
+    const [dictionaryHtml, translateHtml] = await Promise.all([dictionaryRes.text(), translateRes.text()]);
+
+    let viewContext = {
+        s,
+        style: {
+            body: {
+                fontFamily: styleFontFamily || 'Arial',
+                backgroundColor: styleBodyBackgroundColor || '#FFFFFF'
+            },
+            text: {
+                wordColor: styleTextWordColor || 'darkblue',
+                pronColor: styleTextPronColor || 'cornflowerblue',
+                meanColor: styleTextMeanColor || 'black',
+                gramColor: styleTextGramColor || 'green',
+                exampleColor: styleTextExampleColor || 'black',
+            }
+        },
+        display: {
+            gram: gram || 'block',
+            pron: pron || 'block',
+            examples: examples || 'block',
+            mean: mean || 'block',
+            audio: audio || 'block'
+        }
+    };
+
+    try {
+        const gramPattern =
+            /div class="posgram dpos-g hdib lmr-5"(?=.*?)>(.*?)<\/div>/g;
+        viewContext.gram = gramPattern.exec(dictionaryHtml)[1];
+
+        const pronPattern =
+            /span class="ipa dipa lpr-2 lpl-1"(?=.*?)>(.*?)<\/span>\//g;
+        viewContext.pron = "/" + pronPattern.exec(dictionaryHtml)[1] + "/";
+
+        const audioPattern = /src="(\/us\/media\/english\/us_pron\/(.*?).mp3)"/g;
+        viewContext.audio =
+            "https://dictionary.cambridge.org" + audioPattern.exec(dictionaryHtml)[1];
+
+        const examplePattern = /<div class="pos-body">(.*?)<\/div><\/div><\/div><\/div><\/div>/gs;
+        viewContext.examples = examplePattern.exec(dictionaryHtml)[1]
+
+        const wordPattern = /<span class="hw dhw">(.*?)<\/span>/g;
+        viewContext.word = wordPattern.exec(dictionaryHtml)[1];
+    } catch (e) {
+        console.log(e);
+        return response.status(200).send(dictionaryHtml);
     }
-  );
 
-  const html = await res.text();
-
-  let result = {
-      s,
-      style: {
-          body: {
-              fontFamily: styleFontFamily || 'Arial',
-              backgroundColor: styleBodyBackgroundColor || '#FFFFFF'
-          },
-          text: {
-              wordColor: styleTextWordColor || 'darkblue',
-              pronColor: styleTextPronColor || 'cornflowerblue',
-              meanColor: styleTextMeanColor || 'black',
-              gramColor: styleTextGramColor || 'green',
-              exampleColor: styleTextExampleColor || 'black',
-          }
-      },
-      display: {
-          gram: gram || 'block',
-          pron: pron || 'block',
-          examples: examples || 'block',
-          mean: mean || 'block',
-          audio: audio || 'block'
-      }
-  };
-
-  try {
-    const gramPattern =
-      /div class="posgram dpos-g hdib lmr-5"(?=.*?)>(.*?)<\/div>/g;
-    result.gram = gramPattern.exec(html)[1];
-
-    const pronPattern =
-      /span class="ipa dipa lpr-2 lpl-1"(?=.*?)>(.*?)<\/span>\//g;
-    result.pron = "/" + pronPattern.exec(html)[1] + "/";
-
-    const audioPattern = /src="(\/us\/media\/english\/us_pron\/(.*?).mp3)"/g;
-    result.audio =
-      "https://dictionary.cambridge.org" + audioPattern.exec(html)[1];
-
-    const examplePattern = /<div class="pos-body">(.*?)<\/div><\/div><\/div><\/div><\/div>/gs;
-      result.examples = examplePattern.exec(html)[1]
-
-    const wordPattern = /<span class="hw dhw">(.*?)<\/span>/g;
-    result.word = wordPattern.exec(html)[1];
-  } catch (e) {
-    console.log(e);
-    return response.status(200).send(html);
-  }
-
-  return response.status(200).send(buildHtml(result));
+    return response.status(200).send(buildHtml(viewContext));
 }
