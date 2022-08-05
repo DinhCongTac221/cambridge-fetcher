@@ -39,8 +39,9 @@ export default async function handler(request, response) {
         width
     } = request.query;
 
+    const rand = Math.floor(100000 + Math.random() * 900000)
     const imagesPromise = fetch(
-        `https://yandex.com/images/search?text=${s}`,
+        `https://yandex.com/images/search?text=${s}&suggest_reqid=${rand}750165932932167557145${rand}`,
         {
             method: "GET",
         }
