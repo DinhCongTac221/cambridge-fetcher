@@ -140,6 +140,15 @@ grid-template-columns: auto;
 }
 ```
 
+### Adding words
+
+Just input your word to Front, leave Back empty.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/lnquy065/cambridge-fetcher/main/readme/tut-4.png"/>
+</p>
+
+
 ## License
 
 MIT © [lnquy065](https://github.com/lnquy065)
