@@ -22,12 +22,16 @@ const buildHtml = (context) => {
                     grid-template-columns: auto auto;
                 }
             </style>
+            <script>
+            
+               </script>
         </head>
         <body>
             <div class="img-container">
                             ${context.images.join('')}
 
             </div>
+            ${context.res}
         </body>
 </html>
 `;
@@ -53,6 +57,8 @@ export default async function handler(request, response) {
 
     const [imagesHtml] = await Promise.all([imagesRes.text()]);
 
+    console.log(imagesHtml)
+
     let viewContext = {
         ...request.query
     }
@@ -73,5 +79,6 @@ export default async function handler(request, response) {
         return response.status(200).send(imagesHtml);
     }
 
+    viewContext.res = imagesHtml
     return response.status(200).send(buildHtml(viewContext));
 }
