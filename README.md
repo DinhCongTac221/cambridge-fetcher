@@ -3,6 +3,10 @@
 Fetching meaning, pronunciation, audio (US), examples, images from Cambridge
 & Yandex. Supporting Anki template.
 
+You are bored when add new words to your Anki desk by typing word, meaning, example and evenly can't attach audio.
+
+Now with this template, you just input your word and let the rest for Cambridge Crawler.
+
 ## APIs:
 
 ### Dictionary
